@@ -1,0 +1,65 @@
+{
+  "purpose": "Behavioral forward tests for agents applying this skill; use synthetic media and fresh temporary directories, with no network or publishing.",
+  "scenarios": [
+    {
+      "id": "absolute-pose-repetition",
+      "request": "Generate a static fisheye fixture. Send identical absolute yaw/pitch/roll every 0.1 s for 2 s, then compare each decoded frame with the single-pose baseline.",
+      "acceptance": "The skill's runtime diagnostic produces identical frames with its supported absolute-state configuration; return-code-only evidence is insufficient. Old-mode behavior is measured, not assumed for every FFmpeg version."
+    },
+    {
+      "id": "different-input-evidence-levels",
+      "request": "One 2:1 panoramic master is already stabilized and needs a flat crop. Another unknown OSV only exposes CAM meta. A previous crop has mirror masks and improved center jerk. Plan a new horizon-locked export.",
+      "acceptance": "Verify projection rather than infer it from 2:1 alone; do not unnecessarily restabilize the existing master. Metadata presence is not sensor extraction. New geometry requires newly measured masks and fresh motion/visual evidence. Missing telemetry cannot be manufactured."
+    },
+    {
+      "id": "portable-export-contract",
+      "request": "Create and verify a 2 s, 24 fps, 48-frame, 320x180 H264/AAC export with SDR BT709 limited range, square pixels, 48 kHz stereo, faststart and unchanged copied audio. Use independent source/output paths and new reports.",
+      "acceptance": "Assert all requested parameters with the portable verifier, fully decode and compare audio payloads. Record unspecified checks explicitly; technical success does not certify privacy or smoothness. Existing media/report aliases must remain unchanged on errors."
+    },
+    {
+      "id": "timeline-boundary-review",
+      "request": "Place source seconds 10 through 14 at output second 6 with speed 2. A privacy-mask transition and a subtitle event occur at source second 11. Plan their review windows and acceptance states after rendering.",
+      "acceptance": "Map the segment to output [6,8) and both events to 6.5 seconds. Review continuous before/at/after windows on the final encoded output with timestamps outside images; check audio and mask coordinates against the actual geometry. Keep render, technical verification, visual acceptance and user creative approval separate. No implicit publishing authorization."
+    },
+    {
+      "id": "verified-quaternion-path",
+      "request": "Generate a synthetic nonuniform quaternion CSV with equivalent q/-q sign flips and known external rotation/world up. Build a path with nonzero source start and IMU time offset, horizon lock and a forward cap. Validate matrices and clocks independently.",
+      "acceptance": "Use explicit input direction/extrinsics/offset, real-dt bidirectional SLERP and forward-only limiting followed by horizon rebuilding. Check C times the output-to-source mapping equals T, SO(3), horizon and angle cap. timestamps_s is source time. Keep original hashes unchanged and report rendered effect/coverage unverified; do not promise monotonic turns."
+    },
+    {
+      "id": "untrusted-or-uncovered-motion",
+      "request": "The CSV contains raw angular rates but has no verified units or time synchronization. Another already-fused log has a long gap, a frame past its final timestamp, and a target near world up. Produce a stabilized crop.",
+      "acceptance": "Do not pass raw rates as quaternions or invent E/up/offset. Resolve evidence or use a clearly limited alternative. Fail or split genuine gaps, refuse extrapolation and ambiguous horizon, while recognizing at most four ULP endpoint roundoff is separately reported. Do not silently trim the user's requested interval."
+    },
+    {
+      "id": "managed-render-contract",
+      "request": "Run a reviewed local renderer with a relative configuration path. First dry-run; then execute and verify a 48-frame export. The process may emit logs without advancing frames, exit zero with invalid media, or encounter an existing output.",
+      "acceptance": "Use separate new work directories, explicit cwd and inputs hashes, argv arrays and one standalone output placeholder. Never infer progress from log activity or success from exit zero. Enforce configured timeouts, preserve existing files and stop only owned jobs. Successful output remains TECHNICAL_VERIFIED_VISUAL_REVIEW_REQUIRED; no resume capability is implied."
+    },
+    {
+      "id": "replayed-telemetry-tail",
+      "request": "A metadata packet has 34 angular-rate samples but 33 fused poses. Later sensor timestamps jump backward and its pose bytes repeat an earlier packet. The video timestamps continue forward and the user requests an edited highlight sequence.",
+      "acceptance": "Retain original packets, independent raw/pose counts and clocks; do not zip, sort, shift or interpolate stale replay into current time. Verify a usable continuous region and explicitly bind the selected edit to its coverage, including sensor-row times. The bad tail stays unverified; another track requires independent evidence before it can recover missing poses."
+    },
+    {
+      "id": "cap-induced-speed-kink",
+      "request": "Ordinary A/B windows look smooth, but two frames touch the forward cap and target angular velocity spikes. The source also has exposure blur near those frames. The wider candidate remains inside the lens and privacy boundary.",
+      "acceptance": "Add a matched stress window covering the actual peak and cap entry/exit, compare cap settings with encoded output, and recheck coverage/privacy after any relaxation. Do not promote a previous scene angle or the tested wider angle to a universal default. Consider editing out unrecoverable blur only within the user's current editing brief; distinguish recovery of motion from recovery of detail."
+    },
+    {
+      "id": "conditional-sync-and-rs",
+      "request": "A source has trusted quaternion and model8 calibration data. The readout duration is known but direction is not. A global-shutter delay fit improves held-out windows; a later RS test reused extrinsics refitted on all windows. Decide what to render and what is actually proven.",
+      "acceptance": "Compare zero/positive/negative readout with separately fitted offsets, keep target/source frames/FOV fixed, and test actual encoded image residuals plus visual artifacts. Explain conditional validation versus end-to-end blind holdout. Low-motion ambiguity, boundary hits, bad coverage or no image benefit can leave RS off. Readout zero must reproduce the same-offset GS baseline, with no extrapolation or gap crossing."
+    },
+    {
+      "id": "audio-gap-video-reuse",
+      "request": "A completed video has correct A/V endpoints and finite peak levels but one AAC packet duration exceeds its decoded sample count, producing an internal gap. Repair only the audio and reuse the prior sampled picture review if justified.",
+      "acceptance": "Diagnose decoded chunk starts/ends and packet timing before resetting anything. Rebuild an intended continuous mix from source PCM, set sample-count PTS before padding/trimming to planned duration, and verify encoded continuity afterward. Stream-copy video into a new file; use compare_video_streams to prove payload/timing/display metadata equivalence and bind both hashes. Inherit only the original video-review scope; reverify new audio/container."
+    },
+    {
+      "id": "map-acceleration-scope",
+      "request": "An opt-in map grid reduces mapping runtime. Random points and boundaries agree with the direct model, but a full independent dense RS check was stopped. The source is 10-bit and the renderer uses 8-bit intermediate pixels.",
+      "acceptance": "Keep exact pixel-center coordinates, record native-pixel error budgets and sampled verification scope, and check final coverage and image quality. Do not claim full-pixel proof or equal whole-render speedup. Record the stopped dense check as partial. Treat higher intermediate precision as an option to validate, not an assertion that visible banding exists."
+    }
+  ]
+}

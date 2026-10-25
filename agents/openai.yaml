@@ -1,0 +1,4 @@
+interface:
+  display_name: "360° 全景视频裁剪与防抖"
+  short_description: "Reframe and stabilize 360 video with evidence checks."
+  default_prompt: "Use $reframe-360-video to reframe this 360° video with smooth motion, camera-operator privacy, and a verified export."
